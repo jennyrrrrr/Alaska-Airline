@@ -95,9 +95,6 @@ Add CONSTRAINT FK_FlightID
  FOREIGN KEY (FlightID) REFERENCES tblFlight(FlightID);
 GO
  
- 
-Allison’s Code: 
- 
 CREATE TABLE tblAirport
 (AirportID INTEGER IDENTITY(1,1) PRIMARY KEY,
 CityID INT NOT NULL,
@@ -316,8 +313,7 @@ ALTER TABLE tblFlight
 ADD numPassengers AS (dbo.fn_numPassengers())
 GO
  
- 
-Jenny’s Part: 
+
 CREATE TABLE tblEmployee
 (EmployeeID INTEGER IDENTITY(1,1) PRIMARY KEY,
 EmployeeFname VARCHAR(50) NOT NULL,
@@ -474,8 +470,7 @@ BEGIN TRAN G1
        COMMIT TRAN T1
    GO
  
- 
-Wanyu’s code:
+
 CREATE TABLE tblCustomer_Type
 (CustomerTypeID INT IDENTITY(1,1) PRIMARY KEY,
 CustomerTypeName VARCHAR(100) NOT NULL,
