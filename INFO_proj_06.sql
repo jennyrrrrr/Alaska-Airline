@@ -437,13 +437,3 @@ CREATE PROCEDURE uspGetCustomerTypeID
 AS
 SET @Customer_Type_ID = (SELECT CustomerTypeID FROM tblCustomer_Type WHERE CustomerTypeName = @Customer_Type_Name)
 GO
-
-
-
--- inserting
-BULK INSERT tblEMPLOYEE from '/Users/andrewgabra/desktop/MOCK_DATA.csv' WITH
-(
-	FIELDTERMINATOR = ',',
-	FIRSTROW = 2
-)
-GO
