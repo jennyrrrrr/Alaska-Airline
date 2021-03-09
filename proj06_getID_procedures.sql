@@ -1,3 +1,6 @@
+USE ALASKA_AIRLINES
+GO
+
 -- Get ID Stored Procedures--
 CREATE PROCEDURE getAirplaneTypeID
 @AT_Name VARCHAR(50), 
@@ -26,6 +29,7 @@ GO
 CREATE PROCEDURE getEmployeeID
 @EmployeeFnamey VARCHAR(50),
 @EmployeeLnamey VARCHAR(50),
+@EmployeeDOB Date,
 @EmployeeEmaily VARCHAR(50),
 @EmployeePhoney VARCHAR(15),
 @EmployeeAddressy VARCHAR(50),
@@ -39,6 +43,7 @@ SET @EmployeeIDy = (
    FROM tblEMPLOYEE
    WHERE EmployeeFname = @EmployeeFnamey
        AND EmployeeLname = @EmployeeLnamey
+       AND EmployeeDOB = @EmployeeDOB
        AND EmployeeEmail = @EmployeeEmaily
        AND EmployeePhone = @EmployeePhoney
        AND EmployeeAddress = @EmployeeAddressy
@@ -65,13 +70,22 @@ SET @StateID =
 (SELECT StateID FROM tblSTATE WHERE StateLetters = @StateLettersy AND StateName = @StateNamey)
 GO
 
+CREATE PROCEDURE getCustomerTypeID
+@CustomerTname VARCHAR(50),
+@CustomerT_ID INT OUTPUT
+AS
+SET @CustomerT_ID = 
+(SELECT CustomerTypeID FROM tblCustomer_Type WHERE CustomerTypeName = @CustomerTname)
+GO
+
 CREATE PROCEDURE getCustomerID
 @Customer_Fname VARCHAR(50),
 @Customer_Lname VARCHAR(50),
+@Customer_DOB DATE,
 @Customer_ID INT OUTPUT
 AS
 SET @Customer_ID = 
-(SELECT CustomerID FROM tblCustomer WHERE CustomerFname = @Customer_Fname AND CustomerLname = @Customer_Fname)
+(SELECT CustomerID FROM tblCustomer WHERE CustomerFname = @Customer_Fname AND CustomerLname = @Customer_Fname AND CustomerDOB = @Customer_DOB)
 GO
 
 CREATE PROCEDURE getFeeTypeID
@@ -100,31 +114,12 @@ SET @FlightType_ID =
 (SELECT FlightTypeID FROM tblFlight_Type WHERE FlightTypeName = @FlightType_Name)
 GO 
 
---OrderID, BookingID
-
---needs to be reviewed 
 CREATE PROCEDURE getAirportID
 @AirportLtrs VARCHAR(5),
 @AirportID INT OUTPUT
 AS 
 SET @AirportID = 
 (SELECT AirportID FROM tblAirport WHERE AirportLetters = @AirportLtrs)
-GO 
-
-CREATE PROCEDURE getFlightID
-@FlightHrs INT,
-@FlightID INT OUTPUT
-AS 
-SET @FlightID = 
-(SELECT FlightID FROM tblFlight WHERE FlightHrs = @FlightHrs)
-GO 
-
-CREATE PROCEDURE getFeeID
-@FeeName VARCHAR(20), 
-@FeeID INT OUTPUT
-AS 
-SET @FeeID = 
-(SELECT FeeID FROM tblFee WHERE FeeName = @FeeName)
 GO 
 
 CREATE PROCEDURE getCityID
@@ -142,7 +137,7 @@ AS
 SET @EventID = 
 (SELECT EventID FROM tblEvent WHERE EventName = @EventName)
 GO 
-
+    
 CREATE PROCEDURE getOrderID
     @CustomerFname VARCHAR(50),
     @CustomerLname VARCHAR(50),
@@ -169,8 +164,7 @@ GO
 
 CREATE PROCEDURE getFeeID 
     @FeeTypeName VARCHAR(50),
-    @FeeName VARCHAR(50),
-    @FeeAmount NUMERIC(8,5), 
+    @FeeName VARCHAR(50), 
     @FeeID INT OUTPUT
     AS 
     DECLARE @FeeTypeID INT
@@ -187,7 +181,7 @@ CREATE PROCEDURE getFeeID
     END
 
     SET @FeeID = 
-    (SELECT FeeID FROM tblFee WHERE FeeTypeID = @FeeTypeID AND FeeName = @FeeName AND FeeAmount = @FeeAmount)
+    (SELECT FeeID FROM tblFee WHERE FeeTypeID = @FeeTypeID AND FeeName = @FeeName)
 GO
 
 CREATE PROCEDURE getAirplaneID 
@@ -210,4 +204,138 @@ CREATE PROCEDURE getAirplaneID
 
     SET @AirplaneID = 
     (SELECT @AirplaneID FROM tblAirplane WHERE AirplaneTypeID = @ATID AND DateMade = @Date)
+GO
+
+CREATE PROCEDURE getBookingID
+    @Passenger_Fnameb VARCHAR(50),
+    @Passenger_Lnameb VARCHAR(50),
+    @Passenger_Birthb DATE,
+    @FlightHrsb INT,
+    @FeeNameb VARCHAR(20), 
+    @FeeTName VARCHAR(20), 
+
+    @CustomerFnameb VARCHAR(50),
+    @CustomerLnameb VARCHAR(50),
+    @OrderDateb DATE, 
+    @BookingAmountb FLOAT, 
+    @BookingID INT OUTPUT
+    AS
+    DECLARE @PID_ INT, @FID_ INT, @FEID_ INT, @OID_ INT
+
+    EXEC getPassengerID
+    @Passenger_Fname = @Passenger_Fnameb,
+    @Passenger_Lname = @Passenger_Lnameb,
+    @Passenger_Birth = @Passenger_Birthb,
+    @Passenger_ID = @PID_ OUTPUT
+
+    -- Error handle @PID_ in case if it's NULL/empty
+    IF @PID_ IS NULL
+    BEGIN 
+        PRINT '@PID_ is empty and this will cause the transaction to be failed';
+        THROW 51000, '@PID_ cannot be NULL', 1;
+    END
+
+    EXEC getFlightID
+    @FlightHrs = @FlightHrsb,
+    @FlightID = @FID_ OUTPUT
+
+    -- Error handle @FID_ in case if it's NULL/empty
+    IF @FID_ IS NULL
+    BEGIN 
+        PRINT '@FID_ is empty and this will cause the transaction to be failed';
+        THROW 51000, '@FID_ cannot be NULL', 1;
+    END
+
+    EXEC getFeeID
+    @FeeName = @FeeNameb,
+    @FeeID = @FEID_ OUTPUT
+
+    -- Error handle @FEID_ in case if it's NULL/empty
+    IF @FEID_ IS NULL
+    BEGIN 
+        PRINT '@FEID_ is empty and this will cause the transaction to be failed';
+        THROW 51000, '@FEID_ cannot be NULL', 1;
+    END
+
+    EXEC getOrderID
+    @CustomerFname = @CustomerFnameb,
+    @CustomerLname = @CustomerLnameb,
+    @OrderDate = @OrderDateb,
+    @OrderID = @OID_ OUTPUT
+
+    -- Error handle @CustomerID in case if it's NULL/empty
+    IF @OID_ IS NULL
+    BEGIN 
+        PRINT '@OID_ is empty and this will cause the transaction to be failed';
+        THROW 51000, '@OID_ cannot be NULL', 1;
+    END
+
+    SET @BookingID = 
+        (SELECT BookingID FROM tblBooking WHERE PassengerID = @PID_ AND FlightID = @FID_
+        AND FeeID = @FEID_ AND OrderID = @OID_ AND BookingAmount = @BookingAmountb)
+GO
+
+CREATE PROCEDURE getFlightID
+    @AT_Name VARCHAR(50),
+    @Date_ DATE,
+    @FlightType_Name_ VARCHAR(20), 
+    @FlightType_Descr_ VARCHAR(100),
+    @DepAirportLtrs VARCHAR(5),
+    @ArrAirportLtrs VARCHAR(5),
+    @ArrivalTime TIME,
+    @DepartureTime TIME,
+    @FlightHrs_ INT, 
+    @FlightID INT OUTPUT
+    AS
+    DECLARE @AID_ INT, @FLTID_ INT, @DEP_ID INT, @ARR_ID INT
+
+    EXEC getAirplaneID
+    @ATName = @AT_Name,
+    @Date = @Date_,
+    @AirplaneID = @AID_ OUTPUT
+
+    -- Error handle @AID_ in case if it's NULL/empty
+    IF @AID_ IS NULL
+    BEGIN 
+        PRINT '@AID_ is empty and this will cause the transaction to be failed';
+        THROW 51000, '@AID_ cannot be NULL', 1;
+    END
+
+    EXEC getFlight_TypeID
+    @FlightType_Name = @FlightType_Name_,
+    @FlightType_ID = @FLTID_ OUTPUT
+
+    -- Error handle @FLTID_ in case if it's NULL/empty
+    IF @FLTID_ IS NULL
+    BEGIN 
+        PRINT '@FLTID_ is empty and this will cause the transaction to be failed';
+        THROW 51000, '@FLTID_ cannot be NULL', 1;
+    END
+
+    EXEC getAirportID
+    @AirportLtrs = @DepAirportLtrs,
+    @AirportID = @DEP_ID OUTPUT
+
+    -- Error handle @DEP_ID in case if it's NULL/empty
+    IF @DEP_ID IS NULL
+    BEGIN 
+        PRINT '@DEP_ID is empty and this will cause the transaction to be failed';
+        THROW 51000, '@DEP_ID cannot be NULL', 1;
+    END
+
+    EXEC getAirportID
+    @AirportLtrs = @ArrAirportLtrs,
+    @AirportID = @ARR_ID OUTPUT
+
+    -- Error handle @CustomerID in case if it's NULL/empty
+    IF @ARR_ID IS NULL
+    BEGIN 
+        PRINT '@ARR_ID is empty and this will cause the transaction to be failed';
+        THROW 51000, '@ARR_ID cannot be NULL', 1;
+    END
+
+    SET @FlightID = 
+        (SELECT FlightID FROM tblFlight WHERE AirplaneID = @AID_ AND FlightTypeID = @FLTID_
+        AND DepartureAirportID = @DEP_ID AND ArrivalAirportID = @ARR_ID AND ArrivalTime = @ArrivalTime
+        AND DepartureTime = @DepartureTime AND FlightHrs = @FlightHrs_)
 GO

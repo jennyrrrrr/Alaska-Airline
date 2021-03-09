@@ -1,4 +1,7 @@
--- Insert Stored Procedures 
+USE ALASKA_AIRLINES
+GO
+
+-- Insert Stored Procedures --
 CREATE PROCEDURE newAirplane
 @AType_Name VARCHAR(50), 
 @Date DATE, 
@@ -72,9 +75,16 @@ CREATE PROCEDURE newEmployeePosition
     @EC VARCHAR(50),
     @ES VARCHAR(50),
     @EZ VARCHAR(50),
+    @EB VARCHAR(50),
     @PN VARCHAR(50),
     @PD VARCHAR(100)
     AS
+        IF @EB > DateADD(Year, -16, GetDate())
+            BEGIN
+                PRINT 'the employee has to be older than 16 years old'
+                RAISERROR ('business rule violation, process is terminating', 11, 1)
+                RETURN
+            END
     DECLARE @E_ID INT, @P_ID INT
 
     EXEC getEmployeeID
@@ -86,6 +96,7 @@ CREATE PROCEDURE newEmployeePosition
     @EmployeeCityy = @EC,
     @EmployeeStatey = @ES,
     @EmployeeZipy = @EZ,
+    @EmployeeBirthdayy = @EB,
     @EmployeeIDy = @E_ID OUTPUT
     IF @E_ID IS NULL 
         BEGIN 
@@ -191,13 +202,15 @@ GO
 CREATE PROCEDURE newOrder
     @Customer_FirstName VARCHAR(50),
     @Customer_LastName VARCHAR(50),
+    @Customer_DOB DATE,
     @Order_Date DATE
     AS
     DECLARE @CustomerID INT
     
-    EXEC uspGetCustomerID
+    EXEC getCustomerID
     @Customer_Fname = @Customer_FirstName,
     @Customer_Lname = @Customer_LastName,
+    @Customer_DOB = @Customer_DOB,
     @Customer_ID = @CustomerID OUTPUT 
 
     -- Error handle @CustomerID in case if it's NULL/ empty
@@ -218,16 +231,15 @@ CREATE PROCEDURE newOrder
         ELSE
     COMMIT TRAN G1
 GO
- 
+
 CREATE PROCEDURE newFee
     @FeeName VARCHAR(50),
     @FeeAmount NUMERIC(8,5),
-    @FeeDescr VARCHAR(100),
     @FeeTypeName VARCHAR(50)
     AS
     DECLARE @FeeTypeID INT 
     
-    EXEC uspGetFeeTypeID
+    EXEC getFeeTypeID
     @Fee_Type_Name = @FeeTypeName,
     @Fee_Type_ID = @FeeTypeID OUTPUT
 
@@ -239,8 +251,8 @@ CREATE PROCEDURE newFee
         END
     
     BEGIN TRAN G1
-        INSERT INTO tblFee (FeeName, FeeTypeID, FeeAmount, FeeDescr)
-        VALUES (@FeeName, @FeeTypeID, @FeeAmount, @FeeDescr)
+        INSERT INTO tblFee (FeeName, FeeTypeID, FeeAmount)
+        VALUES (@FeeName, @FeeTypeID, @FeeAmount)
         IF @@ERROR <> 0
             BEGIN
                 PRINT 'There is an error; need to rollback this transaction'
@@ -248,4 +260,161 @@ CREATE PROCEDURE newFee
             END
         ELSE
     COMMIT TRAN G1
+GO
+
+CREATE PROCEDURE newFlight
+    @AT_Namea VARCHAR(50),
+    @Date_a DATE,
+    @FlightType_Name_a VARCHAR(20), 
+    @AirportLtrsD VARCHAR(5),
+    @AirportLtrsA VARCHAR(5),
+    @ArrivalTimea TIME,
+    @DepartureTimea TIME,
+    @FlightHrs_a INT
+    AS
+    DECLARE @AID_a INT, @FLTID_a INT, @DEP_IDa INT, @ARR_IDa INT
+
+    EXEC getAirplaneID
+    @ATName = @AT_Namea,
+    @Date = @Date_a,
+    @AirplaneID = @AID_a OUTPUT
+
+    -- Error handle @AID_a in case if it's NULL/empty
+    IF @AID_a IS NULL
+    BEGIN 
+        PRINT '@AID_a is empty and this will cause the transaction to be failed';
+        THROW 51000, '@AID_a cannot be NULL', 1;
+    END
+
+    EXEC getFlight_TypeID
+    @FlightType_Name = @FlightType_Name_a,
+    @FlightType_ID = @FLTID_a OUTPUT
+
+    -- Error handle @FLTID_a in case if it's NULL/empty
+    IF @FLTID_a IS NULL
+    BEGIN 
+        PRINT '@FLTID_a is empty and this will cause the transaction to be failed';
+        THROW 51000, '@FLTID_a cannot be NULL', 1;
+    END
+
+    EXEC getAirportID
+    @AirportLtrs = @AirportLtrsD,
+    @AirportID = @DEP_IDa OUTPUT
+
+    -- Error handle @DEP_ID in case if it's NULL/empty
+    IF @DEP_IDa IS NULL
+    BEGIN 
+        PRINT '@DEP_IDa is empty and this will cause the transaction to be failed';
+        THROW 51000, '@DEP_IDa cannot be NULL', 1;
+    END
+
+    EXEC getAirportID
+    @AirportLtrs = @AirportLtrsA,
+    @AirportID = @ARR_IDa OUTPUT
+
+    -- Error handle @ARR_IDa in case if it's NULL/empty
+    IF @ARR_IDa IS NULL
+    BEGIN 
+        PRINT '@ARR_IDa is empty and this will cause the transaction to be failed';
+        THROW 51000, '@ARR_IDa cannot be NULL', 1;
+    END
+
+    BEGIN TRAN T1
+        INSERT INTO tblFlight
+        (AirplaneID, FlightTypeID, DepartureAirportID, ArrivalAirportID, ArrivalTime, DepartureTime, FlightHrs)
+        VALUES 
+        (@AID_a, @FLTID_a, @DEP_IDa, @ARR_IDa, @ArrivalTimea, @DepartureTimea, @FlightHrs_a)
+        IF @@ERROR <> 0
+            BEGIN 
+                PRINT 'There is an error - rolling back transaction T1'
+                ROLLBACK TRAN T1
+            END
+        ELSE
+    COMMIT TRAN T1
+GO
+
+CREATE PROCEDURE newBooking
+    @PassengerFname_ VARCHAR(50),
+    @PassengerLname_ VARCHAR(50),
+    @PassengerBirth_ DATE,
+    @ATName VARCHAR(50),
+    @Date DATE,
+    @FlightType_Name VARCHAR(20), 
+    @DepAirport VARCHAR(5),
+    @ArrAirport VARCHAR(5),
+    @ArrivalT TIME,
+    @DepartureT TIME,
+    @FlightHrs INT, 
+    @FeeName_ VARCHAR(20),
+    @CustomerFname_ VARCHAR(50),
+    @CustomerLname_ VARCHAR(50),
+    @OrderDate_ DATE, 
+    @bookingAmount FLOAT
+    AS 
+    DECLARE
+    @P_ID INT, @F_ID INT, @Fe_ID INT, @O_ID INT
+    
+    EXEC getPassengerID
+    @Passenger_Fname = @PassengerFname_, 
+    @Passenger_Lname = @PassengerLname_, 
+    @Passenger_Birth = @PassengerBirth_, 
+    @Passenger_ID = @P_ID OUTPUT
+    
+    IF @P_ID IS NULL 
+        BEGIN 
+            PRINT '@P_ID cannot be empty - will fail in transaction'; 
+            THROW 51100, '@P_ID cannot be null',1; 
+        END
+    
+    EXEC getFlightID
+    @AT_Name = @ATName,
+    @Date_= @Date,
+    @FlightType_Name_ = @FlightType_Name, 
+    @DepAirportLtrs = @DepAirport,
+    @ArrAirportLtrs = @ArrAirport,
+    @ArrivalTime = @ArrivalT,
+    @DepartureTime = @DepartureT,
+    @FlightHrs_ = @FlightHrs, 
+    @FlightID = @F_ID OUTPUT
+    
+    IF @F_ID IS NULL 
+        BEGIN 
+            PRINT '@F_ID cannot be empty - will fail in transaction'; 
+            THROW 51200, '@F_ID cannot be null',1; 
+        END
+
+    EXEC getFeeID
+    @FeeName = @FeeName_,
+    @FeeID = @Fe_ID OUTPUT
+    
+    IF @Fe_ID IS NULL 
+        BEGIN 
+            PRINT '@Fe_ID cannot be empty - will fail in transaction'; 
+            THROW 51200, '@Fe_ID cannot be null',1; 
+        END
+    
+    EXEC getOrderID
+    @CustomerFname = @CustomerFname_, 
+    @CustomerLname = @CustomerLname_,
+    @OrderDate = @OrderDate_,
+    @OrderID = @O_ID OUTPUT
+    
+    IF @O_ID IS NULL 
+        BEGIN 
+            PRINT '@O_ID cannot be empty - will fail in transaction'; 
+            THROW 51200, '@O_ID cannot be null',1; 
+        END
+
+    BEGIN TRAN T1
+        INSERT INTO tblBooking
+        (PassengerID, FlightID, FeeID, OrderID, BookingAmount)
+        VALUES 
+        (@P_ID, @F_ID, @Fe_ID, @O_ID, @bookingAmount)
+        IF @@ERROR <> 0
+            BEGIN 
+                PRINT 'There is an error - rolling back transaction T1'
+                ROLLBACK TRAN T1
+            END
+        ELSE
+    COMMIT TRAN T1
 GO

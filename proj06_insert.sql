@@ -1,4 +1,8 @@
---inserts into tblState
+-- Insert Data into Database --
+USE ALASKA_AIRLINES
+GO
+
+-- Inserts for tblState -- 
 INSERT into tblState(StateLetters, StateName) values ('AL', 'Alabama'),
 ('AK', 'Alaska'),
 ('AL', 'Alabama'),
@@ -52,28 +56,36 @@ INSERT into tblState(StateLetters, StateName) values ('AL', 'Alabama'),
 ('WV', 'West Virginia'),
 ('WI', 'Wisconsin'),
 ('WY', 'Wyoming');
+GO
 
 --Inserts for tblAirplane_Manufacturer
-INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Airbus', 'A french company that makes airplanes')
+INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Airbus', 'A French company that makes airplanes')
 INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Boeing', 'An American company that makes airplanes')
 INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Bombarier', 'A Canadian company that makes airplanes')
-INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Embraer', 'A Brazzlian company that makes airplanes')
+INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Embraer', 'A Brazilian company that makes airplanes')
+GO
 
 --Inserts for tblAirplane_Type
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('A320')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-9 Max')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-900ER(739)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-900(739)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-800(738)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-700(73G)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('Q400 (DH4)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('175')
+INSERT into tblAirplane_Type(AirplaneTypeName, ManufacturerID) values ('A320', (SELECT ManufacturerID FROM tblAirplane_Manufacturer WHERE ManufacturerName = 'Airbus'))
+INSERT into tblAirplane_Type(AirplaneTypeName, ManufacturerID) values ('737-9 Max', (SELECT ManufacturerID FROM tblAirplane_Manufacturer WHERE ManufacturerName = 'Boeing'))
+INSERT into tblAirplane_Type(AirplaneTypeName, ManufacturerID) values ('737-900ER(739)', (SELECT ManufacturerID FROM tblAirplane_Manufacturer WHERE ManufacturerName = 'Boeing'))
+INSERT into tblAirplane_Type(AirplaneTypeName, ManufacturerID) values ('737-900(739)',  (SELECT ManufacturerID FROM tblAirplane_Manufacturer WHERE ManufacturerName = 'Boeing'))
+INSERT into tblAirplane_Type(AirplaneTypeName, ManufacturerID) values ('737-800(738)',  (SELECT ManufacturerID FROM tblAirplane_Manufacturer WHERE ManufacturerName = 'Boeing'))
+INSERT into tblAirplane_Type(AirplaneTypeName, ManufacturerID) values ('737-700(73G)',  (SELECT ManufacturerID FROM tblAirplane_Manufacturer WHERE ManufacturerName = 'Boeing'))
+INSERT into tblAirplane_Type(AirplaneTypeName, ManufacturerID) values ('Q400 (DH4)',  (SELECT ManufacturerID FROM tblAirplane_Manufacturer WHERE ManufacturerName = 'Bombarier'))
+INSERT into tblAirplane_Type(AirplaneTypeName, ManufacturerID) values ('175',  (SELECT ManufacturerID FROM tblAirplane_Manufacturer WHERE ManufacturerName = 'Embraer'))
+GO
 
 --inserts into tblEvent_type
-INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('natrual disaster', 'An event that happens when it is not caused by humans')
-INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('natrual disaster', 'An event that happens when an airplane breaks down')
+INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('Wind Storm', 'Wind strong enough to cause more than normal turbulance')
+INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('Passenger Medical Problem', 'Passenger on flight has medical issue that needed immediate attention')
+INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('Emergency Landing', 'Had to land early due to an emergency')
+INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('Extreme Lightning', 'Lightning close to plane that caused some sort of disruptance')
+INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('Canceled Flight', 'Issue that caused flight to be canceled')
+INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('Delayed Flight', 'Issue that caused flight to be delayed')
+GO
 
---insert into tblEvent
+/* use synthetic transaction
 INSERT into tblEvent(EventTypeID, EventName, EventDescr) 
 values ((select EventTypeID from tblEvent_Type where EventTypeName = 'canceled'),
  'Natural disasters','fueling delays, luggage delay and other things that need to be on the airplane before leaving')
@@ -85,66 +97,16 @@ values ((select EventTypeID from tblEvent_Type where EventTypeName = 'delayed'),
  'traffic control','When there is a busy runway or busy area around the airport')
 INSERT into tblEvent(EventTypeID, EventName, EventDescr) 
 values ((select EventTypeID from tblEvent_Type where EventTypeName = 'delayed'),
- 'Shipment delays','fueling delays, luggage delay and other things that need to be on the airplane before leaving')
+ 'Shipment delays','fueling delays, luggage delay and other things that need to be on the airplane before leaving') */ 
 
---insert into tblEvent_Type
-INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('canceled', 'A snow storm, high winds, low visilibity')
-INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('delayed', 'The flight has been delayed during unfortunate circumstances')
 
---inserts into airplane
-INSERT into tblAirplane(AirplaneTypeID, ManufacturerID, DateMade, TotalFlightHrs) 
-values ((select AirplaneTypeID from tblAirplane_Type where AirplaneTypeName = 'A320'),
- (select ManufacturerID from tblAirplane_Manufacturer where ManufacturerName = 'Airbus'),'03/02/2017',28000)
- INSERT into tblAirplane(AirplaneTypeID, ManufacturerID, DateMade, TotalFlightHrs) 
-values ((select AirplaneTypeID from tblAirplane_Type where AirplaneTypeName = '737-9 Max'),
- (select ManufacturerID from tblAirplane_Manufacturer where ManufacturerName = 'Boeing'),'08/12/2020',10000)
- INSERT into tblAirplane(AirplaneTypeID, ManufacturerID, DateMade, TotalFlightHrs) 
-values ((select AirplaneTypeID from tblAirplane_Type where AirplaneTypeName = '737-900ER(739)'),
- (select ManufacturerID from tblAirplane_Manufacturer where ManufacturerName = 'Boeing'),'03/02/2014',40000)
-  INSERT into tblAirplane(AirplaneTypeID, ManufacturerID, DateMade, TotalFlightHrs) 
-values ((select AirplaneTypeID from tblAirplane_Type where AirplaneTypeName = '737-900(739)'),
- (select ManufacturerID from tblAirplane_Manufacturer where ManufacturerName = 'Boeing'),'07/21/2015',39000)
- INSERT into tblAirplane(AirplaneTypeID, ManufacturerID, DateMade, TotalFlightHrs) 
-values ((select AirplaneTypeID from tblAirplane_Type where AirplaneTypeName = '737-800(738)'),
- (select ManufacturerID from tblAirplane_Manufacturer where ManufacturerName = 'Boeing'),'09/12/2015',50000)
- INSERT into tblAirplane(AirplaneTypeID, ManufacturerID, DateMade, TotalFlightHrs) 
-values ((select AirplaneTypeID from tblAirplane_Type where AirplaneTypeName = '737-700(73G)'),
- (select ManufacturerID from tblAirplane_Manufacturer where ManufacturerName = 'Boeing'),'02/04/2014',57000)
- INSERT into tblAirplane(AirplaneTypeID, ManufacturerID, DateMade, TotalFlightHrs) 
-values ((select AirplaneTypeID from tblAirplane_Type where AirplaneTypeName = 'Q400 (DH4)'),
- (select ManufacturerID from tblAirplane_Manufacturer where ManufacturerName = 'Bombarier'),'06/21/2017',10000)
- INSERT into tblAirplane(AirplaneTypeID, ManufacturerID, DateMade, TotalFlightHrs) 
-values ((select AirplaneTypeID from tblAirplane_Type where AirplaneTypeName = '175'),
- (select ManufacturerID from tblAirplane_Manufacturer where ManufacturerName = 'Embraer'),'05/15/2018',8000)
-
---insert for manufactures
-INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Airbus', 'A french company that makes airplanes')
-INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Boeing', 'An American company that makes airplanes')
-INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Bombarier', 'A Canadian company that makes airplanes')
-INSERT into tblAirplane_Manufacturer(ManufacturerName, ManufacturerDescr) values ('Embraer', 'A Brazzlian company that makes airplanes')
-
---Inserts for tblAirplane_Type
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('A320')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-9 Max')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-900ER(739)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-900(739)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-800(738)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('737-700(73G)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('Q400 (DH4)')
-INSERT into tblAirplane_Type(AirplaneTypeName) values ('175')
-
-/*
---inserts into tblAirport
-INSERT INTO tblAirport(CityID, AirportLetters)
-SELECT CityID, Airportletters FROM CityAirport
-
---inserts into tblCity
-INSERT INTO tblCity(StateID, CityName)
-SELECT StateID, CityName FROM CityAirport
-*/
---insert into Flight_type
+-- insert into tblFlight_type
 INSERT into tblFlight_Type(FlightTypeName, FlightTypeDescr) values ('Domestic', 'Flights that are only inside of the US')
 GO
+
+-- insert into tblCustomer
+INSERT INTO INFO430_Proj_06.dbo.tblCustomer (CustomerFname, CustomerLname, CustomerPhone, CustomerEmail, CustomerStreetAddr, CustomerCity, CustomerState, CustomerZip, CustomerDOB)
+SELECT TOP 100000 CustomerFname, CustomerLname, PhoneNum, Email, CustomerAddress, CustomerCity, CustomerState, CustomerZIP, DateofBirth FROM PEEPS.dbo.tblCUSTOMER
 
 -- insert 100 rows into tblAirplane
 CREATE PROCEDURE uspWRAPPER_newAirplane
