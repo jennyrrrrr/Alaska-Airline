@@ -1,0 +1,102 @@
+CityName,AirportLetters,StateID,CityID
+Adak,ADK,2,1
+Anchorage,ANC,2,2
+Barrow,BRW,2,3
+Bethel,BET,2,4
+Cordova,CDV,2,5
+Dillingham,FAI,2,6
+Fairbanks,GST,2,7
+Juneau,JNU,2,8
+Ketchikan,KTN,2,9
+King Salmon,AKN,2,10
+Kodiak,ADQ,2,11
+Kotzebue,OTZ,2,12
+Nome,OME,2,13
+Petersburg,PSG,2,14
+Prudhoe Bay,SCC,2,15
+Sitka,SIT,2,16
+Wrangell,WRG,2,17
+Yakutat,YAK,2,18
+Phoenix,PHX,4,19
+Tucson,TUS,4,20
+Burbank,BUR,6,21
+Fresno,FAT,6,22
+Los Angeles,LAX,6,23
+Monterey,MRY,6,24
+Oakland,ONT,6,25
+Ontario,ONT,6,26
+Orange County,SNA,6,27
+Palm Springs,PSP,6,28
+Sacramento,SMF,6,29
+San Diego,SAN,6,30
+San Francisco,SFO,6,31
+San Jose,SJC,6,32
+San Luis Obispo,SBP,6,33
+Santa Barbara,SBA,6,34
+Sonoma,STS,6,35
+Denver,DEN,7,36
+Steamboat Springs,HDN,7,37
+Fort Lauderdale,FLL,11,38
+Fort Myers,RSW,11,39
+Orlando,MCO,11,40
+Tampa,TPA,11,41
+Atlanta,ATL,12,42
+Lihue,LIH,13,43
+Kona,KOA,13,44
+Kahului,OGG,13,45
+Honolulu,HNL,13,46
+Boise,BOI,14,47
+Sun Valley,SUN,14,48
+Chicago O'Hare,ORD,15,49
+Indianapolis,IND,16,50
+Wichita,ICT,18,51
+New Orleans,MSY,20,52
+Baltimore,BWI,22,53
+Boston,BOS,23,54
+Detroit,DTW,24,55
+Minneapolis,MSP,25,56
+Kansas City,MCI,27,57
+St. Louis,STL,27,58
+Billings,BIL,28,59
+Bozeman,BZN,28,60
+Great Falls,GTF,28,61
+Helena,HLN,28,62
+Kalispell,FCA,28,63
+Missoula,MSO,28,64
+Omaha,OMA,29,65
+Las Vegas,LAS,30,66
+Reno,RNO,30,67
+Albuquerque,ABQ,33,68
+Newark,EWR,34,69
+New York,JFK,34,70
+Raleigh,RDU,35,71
+Columbus,CMH,37,72
+Oklahoma City,OKC,38,73
+Redmond,RDM,39,74
+Eugene,EUG,39,75
+Medford,MFR,39,76
+Portland,PDX,39,77
+Philadelphia,PHL,40,78
+Pittsburgh,PIT,40,79
+Charleston,CHS,43,80
+Nashville,BNA,45,81
+Austin,AUS,46,82
+Dallas,DFW,46,83
+Dallas,DAL,46,84
+El Paso,ELP,46,85
+Houston,IAH,46,86
+San Antonio,SAT,46,87
+Salt Lake City,SLC,47,88
+Bellingham,BLI,50,89
+Everett,PAE,50,90
+Pasco,PSC,50,91
+Pullman,PUW,50,92
+Seattle,SEA,50,93
+Spokane,GEG,50,94
+Walla Walla,ALW,50,95
+Wenatchee,EAT,50,96
+Yakima,YKM,50,97
+Dulles,IAD,10,98
+"Washington, D.C.",DCA,10,99
+Milwaukee,MKE,52,100
+"Jackson Hole, Wyoming",JAC,53,101
