@@ -1,17 +1,14 @@
 USE INFO430_Proj_06
 Go
 
+-- tblEmployee
+
 -- new code for get EmployeeID
 CREATE PROCEDURE getEmployeeID
 @EmployeeFnamey VARCHAR(50),
 @EmployeeLnamey VARCHAR(50),
-@EmployeeDOB Date,
-@EmployeeEmaily VARCHAR(50),
+@EmployeeDOBy Date,
 @EmployeePhoney VARCHAR(15),
-@EmployeeAddressy VARCHAR(50),
-@EmployeeCityy VARCHAR(50),
-@EmployeeStatey VARCHAR(50),
-@EmployeeZipy VARCHAR(50),
 @EmployeeIDy INT OUTPUT
 AS
 SET @EmployeeIDy = (
@@ -19,26 +16,16 @@ SET @EmployeeIDy = (
    FROM tblEMPLOYEE
    WHERE EmployeeFname = @EmployeeFnamey
        AND EmployeeLname = @EmployeeLnamey
-       AND EmployeeDOB = @EmployeeDOB
-       AND EmployeeEmail = @EmployeeEmaily
-       AND EmployeePhone = @EmployeePhoney
-       AND EmployeeAddress = @EmployeeAddressy
-       AND EmployeeCity = @EmployeeCityy
-       AND EmployeeState = @EmployeeStatey
-       AND EmployeeZip = @EmployeeZipy)
+       AND EmployeeDOB = @EmployeeDOBy
+       AND EmployeePhone = @EmployeePhoney)
 GO
 
 -- new code for newEmployeePosition
 CREATE PROCEDURE newEmployeePosition
     @EF VARCHAR(50),
     @EL VARCHAR(50),
-    @ED VARCHAR(50),
-    @EE VARCHAR(50),
+    @ED Date,
     @EP VARCHAR(15),
-    @EA VARCHAR(50),
-    @EC VARCHAR(50),
-    @ES VARCHAR(50),
-    @EZ VARCHAR(50),
     @PN VARCHAR(50),
     @PD VARCHAR(100)
     AS
@@ -53,13 +40,8 @@ CREATE PROCEDURE newEmployeePosition
     EXEC getEmployeeID
     @EmployeeFnamey = @EF,
     @EmployeeLnamey = @EL,
-    @EmployeeDOB = @ED,
-    @EmployeeEmaily = @EE,
+    @EmployeeDOBy = @ED,
     @EmployeePhoney = @EP,
-    @EmployeeAddressy = @EA,
-    @EmployeeCityy = @EC,
-    @EmployeeStatey = @ES,
-    @EmployeeZipy = @EZ,
     @EmployeeIDy = @E_ID OUTPUT
     IF @E_ID IS NULL 
         BEGIN 
@@ -95,17 +77,12 @@ GO
 CREATE PROCEDURE newEmployeePosition
     @EF VARCHAR(50),
     @EL VARCHAR(50),
-    @EE VARCHAR(50),
+    @ED Date,
     @EP VARCHAR(15),
-    @EA VARCHAR(50),
-    @EC VARCHAR(50),
-    @ES VARCHAR(50),
-    @EZ VARCHAR(50),
-    @EB VARCHAR(50),
     @PN VARCHAR(50),
     @PD VARCHAR(100)
     AS
-        IF @EB > DateADD(Year, -16, GetDate())
+        IF @ED > DateADD(Year, -16, GetDate())
             BEGIN
                 PRINT 'the employee has to be older than 16 years old'
                 RAISERROR ('business rule violation, process is terminating', 11, 1)
@@ -116,13 +93,8 @@ CREATE PROCEDURE newEmployeePosition
     EXEC getEmployeeID
     @EmployeeFnamey = @EF,
     @EmployeeLnamey = @EL,
-    @EmployeeEmaily = @EE,
+    @EmployeeDOBy = @ED,
     @EmployeePhoney = @EP,
-    @EmployeeAddressy = @EA,
-    @EmployeeCityy = @EC,
-    @EmployeeStatey = @ES,
-    @EmployeeZipy = @EZ,
-    @EmployeeBirthdayy = @EB,
     @EmployeeIDy = @E_ID OUTPUT
     IF @E_ID IS NULL 
         BEGIN 
@@ -222,9 +194,23 @@ GO
 ALTER TABLE tblPosition
 ADD Amount_Employee AS (dbo.fn_Amount_Employee_per_Position(PositionID))
 
+SELECT * FROM tblEmployee
 SELECT * FROM tblPosition
 SELECT * FROM tblEmployee_Position
+SELECT * FROM tblEmployee_Flight
 GO
+
+-- SET IDENTITY_INSERT tblPosition ON
+-- GO
+
+-- ALTER TABLE tblEmployee
+-- DROP 
+
+
+-- CREATE PROCEDURE uspUpdate_id
+-- @Run INT
+-- as
+--     update tblEmployee set EmployeeID = 1 WHERE EmployeeID = 4
 
 -- syththetic transaction
 CREATE PROCEDURE uspWRAPPER_rongtNewEmployeePosition
@@ -239,12 +225,7 @@ DECLARE
 @EmployeeFnamey VARCHAR(50),
 @EmployeeLnamey VARCHAR(50),
 @EmployeeDOBy Date,
-@EmployeeEmaily VARCHAR(50),
-@EmployeePhoney VARCHAR(15),
-@EmployeeAddressy VARCHAR(50),
-@EmployeeCityy VARCHAR(50),
-@EmployeeStatey VARCHAR(50),
-@EmployeeZipy VARCHAR(50)
+@EmployeePhoney VARCHAR(15)
 DECLARE 
 @PositionNamey VARCHAR(50),
 @PositionDescry VARCHAR(50)
@@ -259,12 +240,7 @@ SET @PK = (SELECT RAND() * @EMPLCount + 1)
 SET @EmployeeFnamey = (SELECT EmployeeFname FROM tblEMPLOYEE WHERE EmployeeID = @PK)
 SET @EmployeeLnamey = (SELECT EmployeeLname FROM tblEMPLOYEE WHERE EmployeeID = @PK)
 SET @EmployeeDOBy = (SELECT EmployeeDOB FROM tblEMPLOYEE WHERE EmployeeID = @PK)
-SET @EmployeeEmaily = (SELECT EmployeeEmail FROM tblEMPLOYEE WHERE EmployeeID = @PK)
 SET @EmployeePhoney = (SELECT EmployeePhone FROM tblEMPLOYEE WHERE EmployeeID = @PK)
-SET @EmployeeAddressy = (SELECT EmployeeAddress FROM tblEMPLOYEE WHERE EmployeeID = @PK)
-SET @EmployeeCityy = (SELECT EmployeeCity FROM tblEMPLOYEE WHERE EmployeeID = @PK)
-SET @EmployeeStatey = (SELECT EmployeeState FROM tblEMPLOYEE WHERE EmployeeID = @PK)
-SET @EmployeeZipy = (SELECT EmployeeZip FROM tblEMPLOYEE WHERE EmployeeID = @PK)
 
 SET @PK = (SELECT RAND() * @POSITIONCount + 1)
 SET @PositionNamey = (SELECT PositionName FROM tblPOSITION WHERE PositionID = @PK)
@@ -274,12 +250,7 @@ EXEC newEmployeePosition
 @EF = EmployeeFnamey,
 @EL = EmployeeLnamey,
 @ED = @EmployeeDOBy,
-@EE = EmployeeEmaily,
 @EP = EmployeePhoney,
-@EA = EmployeeAddressy,
-@EC = EmployeeCityy,
-@ES = EmployeeStatey,
-@EZ = EmployeeZipy,
 @PN = PositionNamey,
 @PD = PositionDescry
 

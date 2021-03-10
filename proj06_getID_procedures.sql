@@ -29,34 +29,24 @@ GO
 CREATE PROCEDURE getEmployeeID
 @EmployeeFnamey VARCHAR(50),
 @EmployeeLnamey VARCHAR(50),
-@EmployeeDOB Date,
-@EmployeeEmaily VARCHAR(50),
 @EmployeePhoney VARCHAR(15),
-@EmployeeAddressy VARCHAR(50),
-@EmployeeCityy VARCHAR(50),
-@EmployeeStatey VARCHAR(50),
-@EmployeeZipy VARCHAR(50),
 @EmployeeIDy INT OUTPUT
 AS
 SET @EmployeeIDy = (
-   SELECT EmployeeID
-   FROM tblEMPLOYEE
-   WHERE EmployeeFname = @EmployeeFnamey
+    SELECT EmployeeID
+    FROM tblEMPLOYEE
+    WHERE EmployeeFname = @EmployeeFnamey
        AND EmployeeLname = @EmployeeLnamey
-       AND EmployeeDOB = @EmployeeDOB
-       AND EmployeeEmail = @EmployeeEmaily
-       AND EmployeePhone = @EmployeePhoney
-       AND EmployeeAddress = @EmployeeAddressy
-       AND EmployeeCity = @EmployeeCityy
-       AND EmployeeState = @EmployeeStatey
-       AND EmployeeZip = @EmployeeZipy)
+       AND EmployeePhone = @EmployeePhoney)
 GO
  
-CREATE PROCEDURE getPostionID
+alter PROCEDURE getPositionID
 @PositionNamey VARCHAR(50),
-@PositionDescry VARCHAR(50),
+@PositionDescry VARCHAR(100),
 @PositionIDy INT OUTPUT
 AS
+-- print @PositionNamey
+-- print @PositionDescry
 SET @PositionIDy = 
 (SELECT PositionID FROM tblPOSITION WHERE PositionName = @PositionNamey AND PositionDescr = @PositionDescry)
 GO

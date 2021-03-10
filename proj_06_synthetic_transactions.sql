@@ -67,3 +67,45 @@ END
 
 EXEC uspWRAPPER_newBooking @Run = 1000;
 GO
+
+ALTER PROCEDURE uspWRAPPER_rongtNewEmployeePosition
+    @Run INT
+    AS
+    DECLARE @EMPLCount INT = (SELECT COUNT(*) FROM tblEMPLOYEE)
+    DECLARE @POSITIONCount INT = (SELECT COUNT(*) FROM tblPOSITION)
+
+    DECLARE @EmployeeFnamey VARCHAR(50),
+            @EmployeeLnamey VARCHAR(50),
+            @EmployeePhoney VARCHAR(15)
+    DECLARE @PositionNamey VARCHAR(50),
+            @PositionDescry VARCHAR(100)
+
+    DECLARE @PK INT, @Rand INT
+
+    WHILE @Run > 0
+        BEGIN
+            SET @PK = (SELECT RAND() * @EMPLCount + 1)
+            SET @EmployeeFnamey = (SELECT EmployeeFname FROM tblEMPLOYEE WHERE EmployeeID = @PK)
+            SET @EmployeeLnamey = (SELECT EmployeeLname FROM tblEMPLOYEE WHERE EmployeeID = @PK)
+            SET @EmployeePhoney = (SELECT EmployeePhone FROM tblEMPLOYEE WHERE EmployeeID = @PK)
+
+            SET @PK = (SELECT RAND() * @POSITIONCount + 1)
+            SET @PositionNamey = (SELECT PositionName FROM tblPOSITION WHERE PositionID = @PK)
+            SET @PositionDescry = (SELECT PositionDescr FROM tblPOSITION WHERE PositionID = @PK)
+
+            EXEC newEmployeePosition
+            @EF = @EmployeeFnamey,
+            @EL = @EmployeeLnamey,
+            @EP = @EmployeePhoney,
+            @PN = @PositionNamey,
+            @PD = @PositionDescry
+
+            SET @Run = @Run - 1
+        END
+
+EXEC uspWRAPPER_rongtNewEmployeePosition
+@Run = 20
+
+-- select * from tblEmployee_Position
+-- GO
+ 
