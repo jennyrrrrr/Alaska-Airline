@@ -279,7 +279,6 @@ CREATE PROCEDURE getFlightID
     @AT_Name VARCHAR(50),
     @Date_ DATE,
     @FlightType_Name_ VARCHAR(20), 
-    @FlightType_Descr_ VARCHAR(100),
     @DepAirportLtrs VARCHAR(5),
     @ArrAirportLtrs VARCHAR(5),
     @ArrivalTime TIME,

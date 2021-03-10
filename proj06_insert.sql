@@ -1,4 +1,9 @@
 -- Insert Data into Database --
+
+/* NOTE: data inserted for tblCity, tblAirport, and flight times 
+in tblFlight were loaded into a csv and then inserted 
+using Import Wizard */ 
+
 USE ALASKA_AIRLINES
 GO
 
@@ -85,6 +90,11 @@ INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('Canceled Fligh
 INSERT into tblEvent_Type(EventTypeName, EventTypeDescr) values ('Delayed Flight', 'Issue that caused flight to be delayed')
 GO
 
+-- insert into tblFlight_type
+INSERT into tblFlight_Type(FlightTypeName, FlightTypeDescr) values ('Domestic', 'Flights that are only inside of the US')
+GO
+
+
 /* use synthetic transaction
 INSERT into tblEvent(EventTypeID, EventName, EventDescr) 
 values ((select EventTypeID from tblEvent_Type where EventTypeName = 'canceled'),
@@ -97,47 +107,15 @@ values ((select EventTypeID from tblEvent_Type where EventTypeName = 'delayed'),
  'traffic control','When there is a busy runway or busy area around the airport')
 INSERT into tblEvent(EventTypeID, EventName, EventDescr) 
 values ((select EventTypeID from tblEvent_Type where EventTypeName = 'delayed'),
- 'Shipment delays','fueling delays, luggage delay and other things that need to be on the airplane before leaving') */ 
+ 'Shipment delays','fueling delays, luggage delay and other things that need to be on the airplane before leaving') 
 
-
--- insert into tblFlight_type
-INSERT into tblFlight_Type(FlightTypeName, FlightTypeDescr) values ('Domestic', 'Flights that are only inside of the US')
-GO
 
 -- insert into tblCustomer
 INSERT INTO INFO430_Proj_06.dbo.tblCustomer (CustomerFname, CustomerLname, CustomerPhone, CustomerEmail, CustomerStreetAddr, CustomerCity, CustomerState, CustomerZip, CustomerDOB)
 SELECT TOP 100000 CustomerFname, CustomerLname, PhoneNum, Email, CustomerAddress, CustomerCity, CustomerState, CustomerZIP, DateofBirth FROM PEEPS.dbo.tblCUSTOMER
+GO
+*/
+
 
 -- insert 100 rows into tblAirplane
-CREATE PROCEDURE uspWRAPPER_newAirplane
-@Run INT 
-AS
-DECLARE @ATypeCount INT = (SELECT COUNT(*) FROM tblAirplane_Type)
-
-DECLARE @ATName VARCHAR(50), @MName VARCHAR(50)
-DECLARE @Date_Made DATE, @T_Hrs FLOAT
-
-DECLARE @PK INT
-DECLARE @Rand INT
-
-WHILE @Run > 0 
-BEGIN
-
-SET @PK = (SELECT RAND() * @ATypeCount + 1)
-SET @ATName = (SELECT AirplaneTypeName FROM tblAirplane_Type WHERE AirplaneTypeID = @PK)
-
-SET @Date_Made = (SELECT GetDate() - (SELECT Rand() * 1000))
-
-SET @T_Hrs = (SELECT Rand() * 100000)
-
-EXEC [newAirplane]
-@AType_Name = @ATName, 
-@Date = @Date_Made, 
-@Hrs = @T_Hrs
-
-SET @Run = @Run - 1
-END
-
 EXEC uspWRAPPER_newAirplane @Run = 100;
-
-SELECT * FROM tblAirplane

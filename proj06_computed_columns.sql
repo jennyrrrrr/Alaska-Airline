@@ -1,4 +1,6 @@
--- computed column: number of bookings for each order
+-- Computed Columns --
+
+-- number of bookings for each order
 CREATE FUNCTION fn_numBookingsPerOrder()
 RETURNS INTEGER 
 AS 
@@ -16,7 +18,7 @@ ALTER TABLE tblOrder
 ADD BookingsInOrder AS (dbo.fn_numBookingsPerOrder())
 GO
  
--- computed column: total number of passengers on a flight
+-- total number of passengers on a flight
 CREATE FUNCTION fn_numPassengers()
 RETURNS INTEGER 
 AS 
@@ -34,7 +36,7 @@ ALTER TABLE tblFlight
 ADD numPassengers AS (dbo.fn_numPassengers())
 GO
 
--- function for fn_Amount_Flight_per_City
+-- number of flights per city 
 CREATE FUNCTION fn_Amount_Flight_per_City(@PK INT)
 RETURNS INT
 AS
@@ -54,7 +56,7 @@ ALTER TABLE tblCity
 ADD Amount_Flight AS (dbo.fn_Amount_Flight_per_City(CityID))
 GO
 
--- function for fn_Amount_Employee_per_Position
+-- number of employees per position 
 CREATE FUNCTION fn_Amount_Employee_per_Position(@PK INT)
 RETURNS INT
 AS
@@ -72,4 +74,41 @@ GO
 
 ALTER TABLE tblPosition
 ADD Amount_Employee AS (dbo.fn_Amount_Employee_per_Position(PositionID))
+GO
+
+-- number of airplanes per manufacture
+CREATE FUNCTION fn_numManuAirplanes()
+RETURNS INTEGER 
+AS 
+BEGIN 
+    DECLARE @RET INT = 
+    (SELECT SUM(a.AirplaneID) 
+    FROM tblAirplane a
+        JOIN tblAirplane_Manufacturer af ON af.ManufacturerID = a.ManufacturerID
+    GROUP BY af.ManufacturerID) 
+RETURN @RET 
+END
+GO 
+ 
+ALTER TABLE tblAirplane_Manufacturer
+ADD Airplanes_per_Manu AS (dbo.fn_numManuAirplanes())
+GO
+
+-- number of cancellations and delays
+CREATE FUNCTION fn_DelaysAndCancelled()
+RETURNS INTEGER 
+AS 
+BEGIN 
+    DECLARE @RET INT = 
+    (SELECT SUM(FE.FlightEventID) 
+    FROM tblFlight_Event fe
+        JOIN tblEvent e ON e.EventID = fe.EventID
+        JOIN tblEvent_Type et ON et.EventTypeID = e.EventTypeID
+    GROUP BY e.EventTypeID) 
+RETURN @RET 
+END
+GO 
+ 
+ALTER TABLE tblEvent_Type
+ADD numCancelledAndDelayed AS (dbo.fn_DelaysAndCancelled())
 GO
