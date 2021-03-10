@@ -95,3 +95,53 @@ ALTER TABLE tblbooking with nocheck
 ADD CONSTRAINT CK_fn_arivallAndDept
 CHECK (dbo.fn_arivallAndDept() = 0)
 GO
+
+
+/* Rule #1: No more than 860 passengers can be in a flight departuring from the Sea-Tac airport. */
+CREATE FUNCTION fn_NoMoreThan860PassengersInSeattleFlight()
+RETURNS INT
+AS 
+BEGIN 
+
+DECLARE @RET INT = 0
+    IF EXISTS (SELECT F.FlightID, F.numPassengers
+        FROM tblFlight F 
+            JOIN tblAirport A ON F.DepartureAirportID = A.AirportID
+    WHERE A.AirportLetters LIKE '%SEA'
+    HAVING COUNT(*) > 860)
+    BEGIN 
+        SET @RET = 1
+    END 
+RETURN @RET 
+END 
+GO 
+
+ALTER TABLE tblFlight with NOCHECK
+ADD CONSTRAINT CK_NoMoreThan860PassengersInSeattleFlight
+CHECK (dbo.fn_NoMoreThan860PassengersInSeattleFlight()=0)
+GO 
+
+
+/* Rule #2: Departure time cannot be earlier than arrival time for a flight  */
+CREATE FUNCTION fn_DepartureTimeNotEarlierThanArrialTime()
+RETURNS INT
+AS 
+BEGIN 
+
+DECLARE @RET INT = 0
+    IF EXISTS (SELECT F.FlightID, F.ArrivalTime, .DepartureTime
+        FROM tblFlight F 
+    WHERE       
+    HAVING )
+    BEGIN 
+        SET @RET = 1
+    END 
+RETURN @RET 
+END 
+GO 
+
+ALTER TABLE tblFlight with NOCHECK
+ADD CONSTRAINT CK_NoMoreThan860PassengersInFlight
+CHECK (dbo.fn_NoMoreThan860PassengersInFlight()=0)
+GO 
+

@@ -60,3 +60,27 @@ FROM tblFee F
 GROUP BY F.FeeName
 ORDER BY FeeFreq DESC
 GO 
+
+
+/* View #1: Get which month(s) have the most and least orders by each cutomer type. */
+CREATE VIEW vwMonths_That_Have_Most_And_Least_Orders 
+AS
+SELECT TOP 12 MONTH(O.OrderDate), COUNT(O.OrderID) AS NumOrdersPerMonth,
+RANK() OVER (ORDER BY COUNT(O.OrderID) DESC) AS RankNumOrders
+FROM tblOrder O
+    JOIN tblCustomer C ON O.CustomerID = O.CustomerID
+    JOIN tblCustomer_Type CT ON C.CustomerTypeID = CT.CustomerTypeID
+GROUP BY O.OrderID, MONTH(O.OrderDate), CT.CustomerTypeID
+ORDER BY MONTH(O.OrderDate) DESC
+
+
+/* View #2: Get how many of the delays are related to severe weather condition. */
+CREATE ViEW vwSevere_Weather_Conditions_Delays
+AS
+SELECT FE.FlightID, COUNT(FE.FlightEventID) AS NumDelays
+FROM tblFlight_Event FE
+    JOIN tblFlight F ON FE.FlightID = F.FlightID
+    JOIN tblEvent E ON FE.EventID = E.EventID
+    JOIN tblEvent_Type ET ON E.EventTypeID = ET.EventTypeID
+WHERE ET.EventTypeName = 'delayed'
+GROUP BY FE.FlightID 

@@ -112,3 +112,40 @@ GO
 ALTER TABLE tblEvent_Type
 ADD numCancelledAndDelayed AS (dbo.fn_DelaysAndCancelled())
 GO
+
+
+/* Computed column #1: Average number of flights flying from Seattle per day. */
+CREATE FUNCTION fn_AverageFlightsFromSeattlePerDay(@PK INT)
+RETURNS INT 
+AS 
+BEGIN 
+
+DECLARE @RET INT = (SELECT AVG(COUNT(F.FlightID)) AS AverageNumFlights
+    FROM tblFlight F
+        JOIN tblAirport A ON F.DepartureAirportID = A.AirportID
+    WHERE A.AirportID = @PK
+    AND A.AirportLetters LIKE '%SEA%')
+RETURN @RET
+END 
+GO 
+
+ALTER TABLE tblAirport
+ADD AverageNumFlights AS (dbo.fn_AverageFlightsFromSeattlePerDay(AirportID))
+
+
+/* Computed column #2: Total booking amount per order for the order table. */
+CREATE FUNCTION fn_TotalBookingAmount(@PK INT)
+RETURNS INT 
+AS 
+BEGIN 
+
+DECLARE @RET INT = (SELECT SUM(B.BookingAmount) AS TotalBookingAmount
+    FROM tblBooking B
+        JOIN tblOrder O ON B.OrderID = B.OrderID
+    WHERE O.OrderID = @PK)
+RETURN @RET
+END 
+GO
+
+ALTER TABLE tblOrder
+ADD TotalBookingAmount AS (dbo.fn_TotalBookingAmount(OrderID))
