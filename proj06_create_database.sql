@@ -7,15 +7,17 @@ GO
 --Create Tables--
 CREATE TABLE tblBooking
 (BookingID INTEGER IDENTITY(1,1) PRIMARY KEY,
+BookingNum INT NOT NULL,
 PassengerID INT NOT NULL,
 FlightID INT NOT NULL,
 FeeID INT NOT NULL,
 OrderID INT NOT NULL, 
 BookingAmount FLOAT NOT NULL)
 GO
- 
+
 CREATE TABLE tblFlight
 (FlightID INTEGER IDENTITY(1,1) PRIMARY KEY,
+FlightNum INT NOT NULL,
 AirplaneID INT NOT NULL,
 FlightTypeID INT NOT NULL,
 DepartureAirportID INT NOT NULL,
@@ -63,6 +65,7 @@ GO
 
 CREATE TABLE tblAirplane
 (AirplaneID INTEGER IDENTITY(1,1) PRIMARY KEY,
+AirplaneName VARCHAR(50) NOT NULL,
 AirplaneTypeID INT NOT NULL,
 DateMade DATE NOT NULL, 
 TotalFlightHrs FLOAT NOT NULL)
@@ -162,11 +165,12 @@ FeeName VARCHAR(50) NOT NULL,
 FeeTypeID INT NOT NULL,
 FeeAmount MONEY NOT NULL) 
 GO
- 
+
 CREATE TABLE tblPassenger
 (PassengerID INT IDENTITY(1,1) PRIMARY KEY,
 PassengerFname VARCHAR(50),
 PassengerLname VARCHAR(50),
+PassengerDOB DATE, 
 PassengerPhone VARCHAR(50),
 PassengerEmail VARCHAR(50),
 PassengerStreetAddr VARCHAR(50),

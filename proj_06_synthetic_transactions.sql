@@ -54,7 +54,12 @@ WHILE @Run > 0
 BEGIN
 
 SET @PK = (SELECT RAND() * @PassengerCount + 1)
+SET @PFname = (SELECT PassengerFname FROM tblPassenger WHERE PassengerID = @PK)
+SET @PLname = (SELECT PassengerLname FROM tblPassenger WHERE PassengerID = @PK)
+SET @PDOB = (SELECT PassengerDOB FROM tblPassenger WHERE PassengerID = @PK)
+
 SET @PK = (SELECT RAND() * @FlightCount + 1)
+
 SET @PK = (SELECT RAND() * @FeeCount + 1)
 SET @PK = (SELECT RAND() * @OrderCount + 1)
 SET @BAmount = (SELECT AreaCode FROM PEEPS.dbo.gthayJUNK2 WHERE CustomerID = @PK)
@@ -108,4 +113,3 @@ EXEC uspWRAPPER_rongtNewEmployeePosition
 
 -- select * from tblEmployee_Position
 -- GO
- 
