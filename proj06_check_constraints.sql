@@ -145,3 +145,48 @@ ADD CONSTRAINT CK_NoMoreThan860PassengersInFlight
 CHECK (dbo.fn_NoMoreThan860PassengersInFlight()=0)
 GO 
 
+-- check if the employee age is above 16
+CREATE FUNCTION fn_CheckEmployeeAge() 
+RETURNS INTEGER 
+AS 
+BEGIN 
+
+DECLARE @RET INTEGER = 0 
+    IF EXISTS(SELECT E.EmployeeDOB
+        FROM tblEmployee E WHERE E.EmployeeDOB < DATEADD(Year, -16, GetDate()))
+            BEGIN 
+                SET @RET = 1
+            END
+RETURN @RET
+END 
+GO
+
+ALTER TABLE tblEMPLOYEE with nocheck 
+ADD CONSTRAINT CK_CheckEmployeeAge
+CHECK (dbo.fn_CheckEmployeeAge() = 0)
+GO
+
+-- check if the employee age is above 16
+CREATE FUNCTION fn_CheckOrderinBooking() 
+RETURNS INTEGER 
+AS 
+BEGIN 
+
+DECLARE @RET INTEGER = 0 
+    IF EXISTS(SELECT *
+        FROM tblBooking B
+            join tblORDER O ON O.OrderID = B.OrderID
+            having COUNT(*) > 1000)
+            BEGIN 
+                SET @RET = 1
+            END
+RETURN @RET
+END 
+GO
+
+ALTER TABLE tblOrder with nocheck 
+ADD CONSTRAINT CK_CheckOrderinBooking
+CHECK (dbo.fn_CheckOrderinBooking() = 0)
+GO
+
+SELECT * from tblBooking
