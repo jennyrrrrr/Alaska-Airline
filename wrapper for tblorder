@@ -1,0 +1,35 @@
+--warpper for order 
+CREATE PROCEDURE uspWRAPPER_newOrder
+@Run INT 
+AS
+DECLARE @CustomerCount INT = (SELECT COUNT(*) FROM tblCustomer)
+
+DECLARE @CustomerFirstName VARCHAR(50), @CustomerLastName VARCHAR(50), @CustomerDOB DATE,
+    @OrderDate DATE
+
+DECLARE @PK INT
+
+WHILE @Run > 0 
+BEGIN
+
+SET @PK = (SELECT RAND() * @CustomerCount + 1)
+SET @Air_Name = (SELECT AirplaneName FROM tblAirplane WHERE RowID = @PK)
+
+SET @Customer_FirstName = (SELECT CustomerFname FROM tblCustomer WHERE CustomerID = @PK)
+SET @Customer_LastName = (SELECT CustomerLname FROM tblCustomer WHERE CustomerID = @PK)
+SET @Customer_DOB = (SELECT CustomerDOB FROM tblCustomer WHERE CustomerID = @PK)
+SET @OrderDate = (SELECT GetDate() - (SELECT Rand() * 1000))
+
+
+EXEC [newOrder]
+@Customer_FirstName = @CustomerFirstName,
+@Customer_LastName = @CustomerLastName,
+@Customer_DOB = @CustomerDOB,
+@Order_Date = @OrderDate
+
+
+SET @Run = @Run - 1
+END
+
+EXEC uspWRAPPER_newOrder @Run = 1000;
+GO
