@@ -1,0 +1,136 @@
+--wrapper for booking
+CREATE PROCEDURE uspWRAPPER_newBooking
+@Run INT 
+AS
+DECLARE @PassengerCount INT = (SELECT COUNT(*) FROM tblPassenger)
+DECLARE @FlightCount INT = (SELECT COUNT(*) FROM tblFlight)
+DECLARE @FeeCount INT = (SELECT COUNT(*) FROM tblFee)
+DECLARE @OrderCount INT = (SELECT COUNT(*) FROM tblOrder)
+DECLARE @CusCount INT = (SELECT COUNT(*) FROM tblCustomer)
+
+DECLARE @PFname VARCHAR(20), @PLname VARCHAR(20), @PDOB DATE, @FNum INT, @FeeN VARCHAR(20), 
+@CFname VARCHAR(20), @CLname VARCHAR(20), @ODate DATE, @BAmount FLOAT
+
+DECLARE @PK INT
+
+WHILE @Run > 0 
+BEGIN
+
+SET @PK = (SELECT RAND() * @PassengerCount + 1)
+SET @PFname = (SELECT PassengerFname FROM tblPassenger WHERE PassengerID = @PK)
+SET @PLname = (SELECT PassengerLname FROM tblPassenger WHERE PassengerID = @PK)
+SET @PDOB = (SELECT PassengerDOB FROM tblPassenger WHERE PassengerID = @PK)
+
+SET @PK = (SELECT RAND() * @FlightCount + 1)
+SET @FNum = (SELECT FlightNum FROM tblFlight WHERE FlightID = @PK)
+
+SET @PK = (SELECT RAND() * @FeeCount + 1)
+SET @FeeN = (SELECT FeeName FROM tblFee WHERE FeeID = @PK)
+
+SET @PK = (SELECT RAND() * @CusCount + 1)
+SET @CFname = (SELECT CustomerFname FROM tblCustomer WHERE CustomerID = @PK)
+SET @CLname = (SELECT CustomerFname FROM tblCustomer WHERE CustomerID = @PK)
+
+SET @PK = (SELECT RAND() * @OrderCount + 1)
+SET @ODate = (SELECT OrderDate FROM tblOrder WHERE OrderID = @PK)
+SET @BAmount = (SELECT AreaCode FROM PEEPS.dbo.gthayJUNK2 WHERE CustomerID = @PK)
+
+EXEC [newBooking]
+@PassengerFname_ = @PFname,
+@PassengerLname_ = @PLname,
+@PassengerBirth_ = @PDOB,
+@F_Num = @FNum,
+@FeeName_ = @FeeN,
+@CustomerFname_ = @CFname,
+@CustomerLname_ = @CLname,
+@OrderDate_ = @ODate,
+@bookingAmount = @BAmount
+
+SET @Run = @Run - 1
+END
+
+EXEC uspWRAPPER_newBooking @Run = 1000;
+GO
+
+--wrapper for Flight
+CREATE PROCEDURE uspWRAPPER_newFlight
+@Run INT 
+AS
+DECLARE @AirplaneCount INT = (SELECT COUNT(*) FROM tblAirplane)
+DECLARE @FTypeCount INT = (SELECT COUNT(*) FROM tblFlight_Type)
+DECLARE @airCount INT = (SELECT COUNT(*) FROM tblAirport)
+
+DECLARE @FL_Num INT, @Air_Name VARCHAR(50), @FlightTypeName VARCHAR(20), @AirportLtrs_D VARCHAR(5),
+@AirportLtrs_A VARCHAR(5), @ArrTime TIME, @DepTime TIME, @FltHours FLOAT
+
+DECLARE @PK INT
+
+WHILE @Run > 0 
+BEGIN
+
+SET @PK = (SELECT RAND() * @AirplaneCount + 1)
+SET @Air_Name = (SELECT AirplaneName FROM tblAirplane WHERE RowID = @PK)
+
+SET @PK = (SELECT RAND() * @FTypeCount + 1)
+SET @FlightTypeName = (SELECT FlightTypeName FROM tblFlight_Type WHERE RowID = @PK)
+
+SET @PK = (SELECT RAND() * @airCount + 1)
+SET @AirportLtrs_D = (SELECT AirportID FROM tblAirport WHERE AirportID = @PK)
+SET @AirportLtrs_A = (SELECT AirportID FROM tblAirport WHERE AirportID = @PK)
+SET @FL_Num = (SELECT AreaCode FROM PEEPS.dbo.gthayJUNK2 WHERE CustomerID = @PK)
+SET @ArrTime = (SELECT ArrivalTime FROM FlightTime WHERE RowID = @PK)
+SET @DepTime = (SELECT DepartureTime FROM FlightTime WHERE RowID = @PK)
+SET @FltHours = (SELECT FORMAT(DATEADD(ss,DATEDIFF(ss,[ArrivalTime], [DepartureTime] ),0),'hh:mm')
+ FROM FlightTime WHERE RowID = @PK)
+
+EXEC [insIntoFlight]
+@F_Num = @FL_Num,
+@A_Namea = @Air_Name,
+@FlightType_Name_a = @FlightTypeName,
+@AirportLtrsD = @AirportLtrs_D,
+@AirportLtrsA = @AirportLtrs_A,
+@ArrivalTimea = @ArrTime,
+@DepartureTimea = @DepTime,
+@FlightHrs_a = @FltHours
+
+
+SET @Run = @Run - 1
+END
+
+EXEC uspWRAPPER_newFlight @Run = 1000;
+GO
+
+--wrapper for airplane
+CREATE PROCEDURE uspWRAPPER_newAirplane
+@Run INT 
+AS
+DECLARE @ATypeCount INT = (SELECT COUNT(*) FROM tblAirplane_Type)
+DECLARE @CityCount INT = (SELECT COUNT(*) FROM tblCity)
+
+DECLARE @AName VARCHAR(50), @ATName VARCHAR(50), @MName VARCHAR(50), @Date_Made DATE, @T_Hrs FLOAT
+
+DECLARE @PK INT
+DECLARE @Rand INT
+
+WHILE @Run > 0 
+    BEGIN
+
+    SET @PK = (SELECT RAND() * @CityCount + 1)
+    SET @AName = (SELECT CityName FROM tblCity WHERE CityID = @PK + 'Flight')
+
+    SET @PK = (SELECT RAND() * @ATypeCount + 1)
+    SET @ATName = (SELECT AirplaneTypeName FROM tblAirplane_Type WHERE AirplaneTypeID = @PK)
+
+    SET @Date_Made = (SELECT GetDate() - (SELECT Rand() * 1000))
+
+    SET @T_Hrs = (SELECT Rand() * 100000)
+
+    EXEC [newAirplane]
+    @A_Name = @AName,
+    @AType_Name = @ATName, 
+    @Date = @Date_Made, 
+    @Hrs = @T_Hrs
+
+    SET @Run = @Run - 1
+    END
+GO
