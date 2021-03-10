@@ -3,12 +3,13 @@ GO
 
 -- Insert Stored Procedures --
 CREATE PROCEDURE newAirplane
+@A_Name VARCHAR(50), 
 @AType_Name VARCHAR(50), 
 @Date DATE, 
 @Hrs FLOAT
 AS 
 DECLARE
-@AType_ID INT, @Manu_ID INT
+@AType_ID INT
  
 EXEC getAirplaneTypeID
 @AT_Name = @AType_Name, 
@@ -22,9 +23,9 @@ IF @AType_ID IS NULL
  
 BEGIN TRAN T1
     INSERT INTO tblAirplane
-    (AirplaneTypeID, DateMade, TotalFlightHrs)
+    (AirplaneName, AirplaneTypeID, DateMade, TotalFlightHrs)
     VALUES 
-    (@AType_ID, @Date, @Hrs)
+    (@A_Name, @AType_ID, @Date, @Hrs)
     IF @@ERROR <> 0
         BEGIN 
             PRINT 'There is an error - rolling back transaction T1'
@@ -69,15 +70,8 @@ GO
 CREATE PROCEDURE newEmployeePosition
     @EF VARCHAR(50),
     @EL VARCHAR(50),
-    @EE VARCHAR(50),
     @EP VARCHAR(15),
-    @EA VARCHAR(50),
-    @EC VARCHAR(50),
-    @ES VARCHAR(50),
-    @EZ VARCHAR(50),
-    @EB VARCHAR(50),
-    @PN VARCHAR(50),
-    @PD VARCHAR(100)
+    @PN VARCHAR(50)
     AS
         IF @EB > DateADD(Year, -16, GetDate())
             BEGIN
@@ -90,13 +84,7 @@ CREATE PROCEDURE newEmployeePosition
     EXEC getEmployeeID
     @EmployeeFnamey = @EF,
     @EmployeeLnamey = @EL,
-    @EmployeeEmaily = @EE,
     @EmployeePhoney = @EP,
-    @EmployeeAddressy = @EA,
-    @EmployeeCityy = @EC,
-    @EmployeeStatey = @ES,
-    @EmployeeZipy = @EZ,
-    @EmployeeBirthdayy = @EB,
     @EmployeeIDy = @E_ID OUTPUT
     IF @E_ID IS NULL 
         BEGIN 
@@ -107,7 +95,6 @@ CREATE PROCEDURE newEmployeePosition
 
     EXEC getPostionID
     @PositionNamey = @PN,
-    @PositionDescry = @PD,
     @PositionIDy = @P_ID OUTPUT
     IF @P_ID IS NULL 
         BEGIN 
@@ -125,11 +112,10 @@ CREATE PROCEDURE newEmployeePosition
                 ROLLBACK TRAN T1
             END 
         ELSE 
-            COMMIT TRAN T1
+    COMMIT TRAN T1
 GO
 
 CREATE PROCEDURE newCity
-    @SL VARCHAR(50), 
     @SN VARCHAR(50), 
     @CN VARCHAR(100)
     AS 
@@ -137,7 +123,6 @@ CREATE PROCEDURE newCity
     @S_ID INT
     
     EXEC getStateID
-    @StateLettersy = @SL, 
     @StateNamey = @SN,
     @StateID = @S_ID OUTPUT
     
@@ -165,6 +150,7 @@ CREATE PROCEDURE newCustomer
     @Customer_Fname VARCHAR(50),
     @Customer_Lname VARCHAR(50),
     @Customer_Phone VARCHAR(50),
+    @Customer_DOB DATE, 
     @Customer_Email VARCHAR(50),
     @Customer_Street_Addr VARCHAR(50),
     @Customer_City VARCHAR(50),
@@ -186,10 +172,10 @@ CREATE PROCEDURE newCustomer
         END 
     
     BEGIN TRAN G1
-        INSERT INTO tblCustomer (CustomerTypeID, CustomerFname, CustomerLname, CustomerPhone, CustomerEmail, CustomerStreetAddr,
-                                CustomerCity, CustomerState, CustomerZip)
-        VALUES (@CustomerTypeID, @Customer_Fname, @Customer_Lname, @Customer_Phone, @Customer_Email, @Customer_Street_Addr, 
-                                @Customer_City, @Customer_State, @Customer_Zip)
+        INSERT INTO tblCustomer (CustomerTypeID, CustomerFname, CustomerLname, CustomerPhone, CustomerDOB, CustomerEmail, 
+                                CustomerStreetAddr, CustomerCity, CustomerState, CustomerZip)
+        VALUES (@CustomerTypeID, @Customer_Fname, @Customer_Lname, @Customer_Phone, @CustomerDOB, @Customer_Email, 
+                @Customer_Street_Addr, @Customer_City, @Customer_State, @Customer_Zip)
         IF @@ERROR <> 0
             BEGIN 
                 PRINT 'There is an error; need to rollback this transaction'
@@ -263,8 +249,8 @@ CREATE PROCEDURE newFee
 GO
 
 CREATE PROCEDURE newFlight
-    @AT_Namea VARCHAR(50),
-    @Date_a DATE,
+    @F_Num INT, 
+    @A_Namea VARCHAR(50),
     @FlightType_Name_a VARCHAR(20), 
     @AirportLtrsD VARCHAR(5),
     @AirportLtrsA VARCHAR(5),
@@ -275,8 +261,7 @@ CREATE PROCEDURE newFlight
     DECLARE @AID_a INT, @FLTID_a INT, @DEP_IDa INT, @ARR_IDa INT
 
     EXEC getAirplaneID
-    @ATName = @AT_Namea,
-    @Date = @Date_a,
+    @AName = @A_Namea,
     @AirplaneID = @AID_a OUTPUT
 
     -- Error handle @AID_a in case if it's NULL/empty
@@ -321,9 +306,9 @@ CREATE PROCEDURE newFlight
 
     BEGIN TRAN T1
         INSERT INTO tblFlight
-        (AirplaneID, FlightTypeID, DepartureAirportID, ArrivalAirportID, ArrivalTime, DepartureTime, FlightHrs)
+        (FlightNum, AirplaneID, FlightTypeID, DepartureAirportID, ArrivalAirportID, ArrivalTime, DepartureTime, FlightHrs)
         VALUES 
-        (@AID_a, @FLTID_a, @DEP_IDa, @ARR_IDa, @ArrivalTimea, @DepartureTimea, @FlightHrs_a)
+        (@F_Num, @AID_a, @FLTID_a, @DEP_IDa, @ARR_IDa, @ArrivalTimea, @DepartureTimea, @FlightHrs_a)
         IF @@ERROR <> 0
             BEGIN 
                 PRINT 'There is an error - rolling back transaction T1'
@@ -337,14 +322,7 @@ CREATE PROCEDURE newBooking
     @PassengerFname_ VARCHAR(50),
     @PassengerLname_ VARCHAR(50),
     @PassengerBirth_ DATE,
-    @ATName VARCHAR(50),
-    @Date DATE,
-    @FlightType_Name VARCHAR(20), 
-    @DepAirport VARCHAR(5),
-    @ArrAirport VARCHAR(5),
-    @ArrivalT TIME,
-    @DepartureT TIME,
-    @FlightHrs INT, 
+    @F_Num INT, 
     @FeeName_ VARCHAR(20),
     @CustomerFname_ VARCHAR(50),
     @CustomerLname_ VARCHAR(50),
@@ -367,14 +345,7 @@ CREATE PROCEDURE newBooking
         END
     
     EXEC getFlightID
-    @AT_Name = @ATName,
-    @Date_= @Date,
-    @FlightType_Name_ = @FlightType_Name, 
-    @DepAirportLtrs = @DepAirport,
-    @ArrAirportLtrs = @ArrAirport,
-    @ArrivalTime = @ArrivalT,
-    @DepartureTime = @DepartureT,
-    @FlightHrs_ = @FlightHrs, 
+    @FNum = @F_Num,
     @FlightID = @F_ID OUTPUT
     
     IF @F_ID IS NULL 
