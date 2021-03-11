@@ -35,10 +35,11 @@ GO
 -- how many airplanes of each type there are in database
 CREATE VIEW view_airplanes_per_manufacture
 AS
-SELECT AM.ManufacturerName, A.AirplaneName, COUNT(A.AirplaneID) AS airplane_count
-    FROM tblAirplane_Manufacturer AM
-    JOIN tblAirplane A ON A.ManufacturerID = AM.ManufacturerID
-    GROUP BY AM.ManufacturerName
+SELECT AM.ManufacturerName, ATP.AirplaneTypeName, COUNT(A.AirplaneID) AS airplane_count
+    FROM tblAirplane A
+    JOIN tblAirplane_Type ATP ON A.AirplaneTypeID = ATP.AirplaneTypeID
+    JOIN tblAirplane_Manufacturer AM ON ATP.ManufacturerID = AM.ManufacturerID
+    GROUP BY AM.ManufacturerName, ATP.AirplaneTypeName
 GO
 
 -- most frequent events
