@@ -1,4 +1,4 @@
-USE ALASKA_AIRLINES
+USE ALASKAAIRLINES
 GO
 
 -- Insert Stored Procedures --
@@ -55,7 +55,7 @@ IF @EventT_ID IS NULL
  
 BEGIN TRAN T1
     INSERT INTO tblEvent
-    (EventTypeID, EventID, EventDescr)
+    (EventTypeID, EventName, EventDescr)
     VALUES 
     (@EventT_ID, @Event_Name, @Event_Descr)
     IF @@ERROR <> 0
@@ -68,17 +68,11 @@ COMMIT TRAN T1
 GO
 
 CREATE PROCEDURE newEmployeePosition
-    @EF VARCHAR(50),
-    @EL VARCHAR(50),
-    @EP VARCHAR(15),
+    @EF VARCHAR(100),
+    @EL VARCHAR(100),
+    @EP VARCHAR(100),
     @PN VARCHAR(50)
     AS
-        IF @EB > DateADD(Year, -16, GetDate())
-            BEGIN
-                PRINT 'the employee has to be older than 16 years old'
-                RAISERROR ('business rule violation, process is terminating', 11, 1)
-                RETURN
-            END
     DECLARE @E_ID INT, @P_ID INT
 
     EXEC getEmployeeID
@@ -93,7 +87,7 @@ CREATE PROCEDURE newEmployeePosition
             RETURN
         END
 
-    EXEC getPostionID
+    EXEC getPositionID
     @PositionNamey = @PN,
     @PositionIDy = @P_ID OUTPUT
     IF @P_ID IS NULL 
@@ -147,22 +141,22 @@ CREATE PROCEDURE newCity
 GO
 
 CREATE PROCEDURE newCustomer 
-    @Customer_Fname VARCHAR(50),
-    @Customer_Lname VARCHAR(50),
-    @Customer_Phone VARCHAR(50),
+    @Customer_Fname VARCHAR(100),
+    @Customer_Lname VARCHAR(100),
+    @Customer_Phone VARCHAR(100),
     @Customer_DOB DATE, 
-    @Customer_Email VARCHAR(50),
-    @Customer_Street_Addr VARCHAR(50),
-    @Customer_City VARCHAR(50),
-    @Customer_State VARCHAR(50),
-    @Customer_Zip VARCHAR(50),
-    @CustomerTypeName VARCHAR(50)
+    @Customer_Email VARCHAR(100),
+    @Customer_Street_Addr VARCHAR(100),
+    @Customer_City VARCHAR(100),
+    @Customer_State VARCHAR(100),
+    @Customer_Zip VARCHAR(100),
+    @CustomerTypeName VARCHAR(100)
     AS
     DECLARE @CustomerTypeID INT
     
     EXEC getCustomerTypeID
-    @Customer_Type_Name = @CustomerTypeName,
-    @Customer_Type_ID = @CustomerTypeID OUTPUT
+    @CustomerTName = @CustomerTypeName,
+    @CustomerT_ID = @CustomerTypeID OUTPUT
 
     -- Error handle @CustomerTypeID in case if it's NULL/ empty
     IF @CustomerTypeID IS NULL
@@ -174,7 +168,7 @@ CREATE PROCEDURE newCustomer
     BEGIN TRAN G1
         INSERT INTO tblCustomer (CustomerTypeID, CustomerFname, CustomerLname, CustomerPhone, CustomerDOB, CustomerEmail, 
                                 CustomerStreetAddr, CustomerCity, CustomerState, CustomerZip)
-        VALUES (@CustomerTypeID, @Customer_Fname, @Customer_Lname, @Customer_Phone, @CustomerDOB, @Customer_Email, 
+        VALUES (@CustomerTypeID, @Customer_Fname, @Customer_Lname, @Customer_Phone, @Customer_DOB, @Customer_Email, 
                 @Customer_Street_Addr, @Customer_City, @Customer_State, @Customer_Zip)
         IF @@ERROR <> 0
             BEGIN 
@@ -184,11 +178,11 @@ CREATE PROCEDURE newCustomer
         ELSE 
     COMMIT TRAN G1
 GO 
- 
+
 CREATE PROCEDURE newOrder
-    @Customer_FirstName VARCHAR(50),
-    @Customer_LastName VARCHAR(50),
-    @Customer_DOB DATE,
+    @Customer_FirstName VARCHAR(100),
+    @Customer_LastName VARCHAR(100),
+    @CustomerDOB DATE,
     @Order_Date DATE
     AS
     DECLARE @CustomerID INT
@@ -196,7 +190,7 @@ CREATE PROCEDURE newOrder
     EXEC getCustomerID
     @Customer_Fname = @Customer_FirstName,
     @Customer_Lname = @Customer_LastName,
-    @Customer_DOB = @Customer_DOB,
+    @Customer_DOB = @CustomerDOB,
     @Customer_ID = @CustomerID OUTPUT 
 
     -- Error handle @CustomerID in case if it's NULL/ empty
@@ -220,7 +214,7 @@ GO
 
 CREATE PROCEDURE newFee
     @FeeName VARCHAR(50),
-    @FeeAmount NUMERIC(8,5),
+    @FeeAmount FLOAT,
     @FeeTypeName VARCHAR(50)
     AS
     DECLARE @FeeTypeID INT 
@@ -319,13 +313,14 @@ CREATE PROCEDURE newFlight
 GO
 
 CREATE PROCEDURE newBooking
-    @PassengerFname_ VARCHAR(50),
-    @PassengerLname_ VARCHAR(50),
+    @Booking_Name VARCHAR(50),
+    @PassengerFname_ VARCHAR(100),
+    @PassengerLname_ VARCHAR(100),
     @PassengerBirth_ DATE,
     @F_Num INT, 
     @FeeName_ VARCHAR(20),
-    @CustomerFname_ VARCHAR(50),
-    @CustomerLname_ VARCHAR(50),
+    @CustomerFname_ VARCHAR(100),
+    @CustomerLname_ VARCHAR(100),
     @OrderDate_ DATE, 
     @bookingAmount FLOAT
     AS 
@@ -378,9 +373,9 @@ CREATE PROCEDURE newBooking
 
     BEGIN TRAN T1
         INSERT INTO tblBooking
-        (PassengerID, FlightID, FeeID, OrderID, BookingAmount)
+        (BookingName, PassengerID, FlightID, FeeID, OrderID, BookingAmount)
         VALUES 
-        (@P_ID, @F_ID, @Fe_ID, @O_ID, @bookingAmount)
+        (@Booking_Name, @P_ID, @F_ID, @Fe_ID, @O_ID, @bookingAmount)
         IF @@ERROR <> 0
             BEGIN 
                 PRINT 'There is an error - rolling back transaction T1'
@@ -388,4 +383,46 @@ CREATE PROCEDURE newBooking
             END
         ELSE
     COMMIT TRAN T1
+GO
+
+CREATE PROCEDURE newBookingFee
+@Booking_Name VARCHAR(50),
+@Fee_Name VARCHAR(50)
+AS
+DECLARE @BID_ INT, @F_ID_ INT
+
+EXEC getBookingID
+@BName = @Booking_Name, 
+@BookingID = @BID_ OUTPUT
+
+-- Error handle @PID_ in case if it's NULL/empty
+IF @BID_ IS NULL
+BEGIN 
+    PRINT '@BID_ is empty and this will cause the transaction to be failed';
+    THROW 51000, '@BID_ cannot be NULL', 1;
+END
+
+EXEC getFeeID
+@FeeName = @Fee_Name,
+@FeeID = @F_ID_ OUTPUT
+
+-- Error handle @F_ID_ in case if it's NULL/empty
+IF @F_ID_ IS NULL
+BEGIN 
+    PRINT '@F_ID_ is empty and this will cause the transaction to be failed';
+    THROW 51000, '@F_ID_ cannot be NULL', 1;
+END
+
+BEGIN TRAN T1
+    INSERT INTO tblBooking_Fee
+    (BookingID, FeeID)
+    VALUES 
+    (@BID_, @F_ID_)
+    IF @@ERROR <> 0
+        BEGIN 
+            PRINT 'There is an error - rolling back transaction T1'
+            ROLLBACK TRAN T1
+        END
+    ELSE
+COMMIT TRAN T1
 GO

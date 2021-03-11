@@ -1,4 +1,4 @@
-USE ALASKA_AIRLINES
+USE ALASKAAIRLINES
 GO
 
 -- Get ID Stored Procedures--
@@ -27,14 +27,14 @@ SET @ET_ID =
 GO 
 
 CREATE PROCEDURE getEmployeeID
-@EmployeeFnamey VARCHAR(50),
-@EmployeeLnamey VARCHAR(50),
-@EmployeePhoney VARCHAR(15),
+@EmployeeFnamey VARCHAR(100),
+@EmployeeLnamey VARCHAR(100),
+@EmployeePhoney VARCHAR(100),
 @EmployeeIDy INT OUTPUT
 AS
 SET @EmployeeIDy = (
     SELECT EmployeeID
-    FROM tblEMPLOYEE
+    FROM tblEmployee
     WHERE EmployeeFname = @EmployeeFnamey
        AND EmployeeLname = @EmployeeLnamey
        AND EmployeePhone = @EmployeePhoney)
@@ -65,13 +65,13 @@ SET @CustomerT_ID =
 GO
 
 CREATE PROCEDURE getCustomerID
-@Customer_Fname VARCHAR(50),
-@Customer_Lname VARCHAR(50),
+@Customer_Fname VARCHAR(100),
+@Customer_Lname VARCHAR(100),
 @Customer_DOB DATE,
 @Customer_ID INT OUTPUT
 AS
 SET @Customer_ID = 
-(SELECT CustomerID FROM tblCustomer WHERE CustomerFname = @Customer_Fname AND CustomerLname = @Customer_Fname AND CustomerDOB = @Customer_DOB)
+(SELECT TOP(1) CustomerID FROM tblCustomer WHERE CustomerFname = @Customer_Fname AND CustomerLname = @Customer_Lname AND CustomerDOB = @Customer_DOB)
 GO
 
 CREATE PROCEDURE getFeeTypeID
@@ -83,8 +83,8 @@ SET @Fee_Type_ID =
 GO
 
 CREATE PROCEDURE getPassengerID
-@Passenger_Fname VARCHAR(50),
-@Passenger_Lname VARCHAR(50),
+@Passenger_Fname VARCHAR(100),
+@Passenger_Lname VARCHAR(100),
 @Passenger_Birth DATE,
 @Passenger_ID INT OUTPUT
 AS
@@ -125,8 +125,8 @@ SET @EventID =
 GO 
     
 CREATE PROCEDURE getOrderID
-    @CustomerFname VARCHAR(50),
-    @CustomerLname VARCHAR(50),
+    @CustomerFname VARCHAR(100),
+    @CustomerLname VARCHAR(100),
     @OrderDate DATE, 
     @OrderID INT OUTPUT
     AS
@@ -165,11 +165,11 @@ SET @AirplaneID =
 GO
 
 CREATE PROCEDURE getBookingID 
-@BNum INT,
+@BName VARCHAR(50),
 @BookingID INT OUTPUT
 AS 
 SET @BookingID = 
-(SELECT BookingID FROM tblBooking WHERE BookingNum = @BNum)
+(SELECT BookingID FROM tblBooking WHERE BookingName = @BName)
 GO
 
 CREATE PROCEDURE getFlightID 
