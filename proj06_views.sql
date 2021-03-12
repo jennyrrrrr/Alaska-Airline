@@ -24,22 +24,30 @@ GO
 -- which states fly to Hawaii
 CREATE VIEW view_flight_to_Hawaii
 AS
-SELECT F.FlightID,  A.AirportLetters, S.StateName 
+SELECT C.CityName, S.StateName, COUNT(*) AS NUM_FLIGHT
     FROM tblFlight F
         JOIN tblAirport A ON A.AirportID = F.ArrivalAirportID
         JOIN tblCity C ON A.CityID = C.CityID
         JOIN tblState S ON S.StateID = C.StateID
         WHERE S.StateName = 'Hawaii'
+    GROUP BY S.StateName,  C.CityName
 GO
+
+-- SELECT * FROM view_flight_to_Hawaii
+-- GO
 
 -- how many airplanes of each type there are in database
 CREATE VIEW view_airplanes_per_manufacture
 AS
-SELECT AM.ManufacturerName, A.AirplaneName, COUNT(A.AirplaneID) AS airplane_count
-    FROM tblAirplane_Manufacturer AM
-    JOIN tblAirplane A ON A.ManufacturerID = AM.ManufacturerID
-    GROUP BY AM.ManufacturerName
+SELECT AM.ManufacturerName, ATP.AirplaneTypeName, COUNT(A.AirplaneID) AS airplane_count
+    FROM tblAirplane A
+    JOIN tblAirplane_Type ATP ON A.AirplaneTypeID = ATP.AirplaneTypeID
+    JOIN tblAirplane_Manufacturer AM ON ATP.ManufacturerID = AM.ManufacturerID
+    GROUP BY AM.ManufacturerName, ATP.AirplaneTypeName
 GO
+
+-- SELECT * FROM view_airplanes_per_manufacture
+-- GO
 
 -- most frequent events
 CREATE VIEW vwMost_Frequent_Events
